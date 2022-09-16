@@ -5,18 +5,21 @@ class MainProg
 {
     public static void Main(string[] args)
     {
-        var user = createUser;
-
+        var user = createUser();
+        aboutUser(in user);
     }
 
-    static (string name, string surname, 
-        byte age, string[] petsName, 
-        string[] favColours) createUser()
+    static (string, string, 
+        byte, string[], 
+        string[]) createUser()
     {
         (string name, string surname,
-            byte age, bool hasPet,
-            byte countOfPets, string[] petsName,
-            byte countOfFavColours, string[] favColours) user;
+        byte age, string[] petsName, 
+        string[]favColours) user;
+        
+        bool hasPet;
+        byte countOfPets, countOfFavColours;
+
 
         rightString(out user.name, "Введите имя: ");
 
@@ -24,30 +27,30 @@ class MainProg
 
         rightNumber(out user.age, "Введите возраст: ");
         
-        Console.Write("У вас есть питомец? Введите \"Да\", если есть, или любую другую строку, если нет.");
-        user.hasPet = (Console.ReadLine() == "Да") ? true : false;
+        Console.Write("У вас есть питомец? Введите \"Да\", если есть, или любую другую строку, если нет: ");
+        hasPet = (Console.ReadLine() == "Да") ? true : false;
 
         user.petsName = new string[0];
-        if (user.hasPet)
+        if (hasPet)
         {
-            rightNumber(out user.countOfPets, "Введите количество питомцев: ");
-            user.petsName = fillArray(user.countOfPets);
+            rightNumber(out countOfPets, "Введите количество питомцев: ");
+            user.petsName = fillArray(countOfPets, "Введите питомцев: ");
         }
 
-        rightNumber(out user.countOfFavColours, "Введите количество любимых цветов: ");
-        user.favColours = fillArray(user.countOfFavColours);
+        rightNumber(out countOfFavColours, "Введите количество любимых цветов: ");
+        user.favColours = fillArray(countOfFavColours, "Введите цвета: ");
 
-        return (user.name, user.surname, user.age, user.petsName, user.favColours);
-
+        return user;
     }
 
-    static void aboutUser(in
-        (string name,
+    static void aboutUser(
+        in (string name,
         string surname,
         byte age,
         string[] petsName,
         string[] favColours) user)
     {
+        Console.WriteLine("--------------Информация о пользователе--------------");
         Console.WriteLine($"Имя: {user.name}");
         Console.WriteLine($"Фамилия: {user.surname}");
         Console.WriteLine($"Возраст: {user.age}");
@@ -61,13 +64,14 @@ class MainProg
 
     //функция принимает строку, в которую запишется ответ пользователя,
     //и строку о просьбе, что именно ввести
-    static void rightString(out string answer,in string ask)
+    static void rightString(out string answer,in string ask = "")
     {
         Console.Write(ask);
         link1:
         answer = Console.ReadLine();
         foreach (char c in answer)
-            if ('0' < c && c < '9')
+            if (!('a' <= c && c <= 'z' || 'A' <= c && c <= 'Z'
+                || 'а' <= c && c <= 'я' || 'А' <= c && c <= 'Я'))
             {
                 Console.Write("Вводите только буквы: ");
                 goto link1;
@@ -76,21 +80,22 @@ class MainProg
 
     //функция принимает число, в которое запишется ответ пользователя,
     //и строку о просьбе, что именно ввести
-    static void rightNumber(out byte num, in string ask)
+    static void rightNumber(out byte num, in string ask = "")
     {
         Console.Write(ask);
-        while (!byte.TryParse(Console.ReadLine(), out num) && num <= 0) {
-            Console.Write("Введите число > 1: ");
+        while (!byte.TryParse(Console.ReadLine(), out num) || num <= 0) {
+            Console.Write("Введите число >= 1: ");
         }
     }
 
     //функция заполнения массива строками
-    public static string[] fillArray(int num)
+    public static string[] fillArray(int num, in string what)
     {
+        Console.WriteLine(what);
         string[] array = new string[num];
         for (int i = 0; i < num; i++)
         {
-            array[i] = Console.ReadLine();
+            rightString(out array[i]);
         }
 
         return array;
